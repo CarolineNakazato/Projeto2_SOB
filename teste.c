@@ -1,3 +1,9 @@
+//INTEGRANTES E RA
+//Breno Baldovinotti 		| 14315311
+//Caroline Gerbaudo Nakazato 	| 17164260
+//Marco Antônio de Nadai Filho 	| 16245961
+//Nícolas Leonardo Külzer Kupka | 16104325
+//Paulo Mangabeira Birocchi 	| 16148363
 #include <stdio.h>
 #include <stdlib.h>
 #include <linux/kernel.h>
@@ -8,39 +14,34 @@
 #include <unistd.h> //syscall() e close()
 #include <string.h>
 
+#define LEN 1024
+
 int main(int argc, char ** argv)
 {
-    if(argc == 2){
-        int fd;
-        switch(argv[1][0]){
-            case 'w':
-                fd = open("out_teste.txt",O_WRONLY|O_CREAT,0640);//O_RDWR  = read and write
-                const char * txt = "ZAZAZAZA";
-                if(fd != -1){
-                    syscall(546, fd, txt, 8); //faz o write_crypt
-                    close(fd);
-                }
-                break;
-            
-            case 'r':
-                fd = open("out_teste.txt", O_RDONLY);
-                char * r = (char *)malloc(8);
-                if(fd != -1){
-                    syscall(547, fd, r, 8); //faz o read_crypt
-                    close(fd);
-                }
-                printf("String READ=%s\n",r);
-                free(r);
-                break;
-            
-            default:
-                printf("USE O ARGUMENTO r ou w\n");
-                break;
-        }
+    printf("Entre com uma string a ser criptografada:\n");
+    char txt[LEN];
+    scanf("%[^\n]%*c", txt);
+    int tam = strlen(txt);
+
+    int fd = open("out_teste.txt",O_WRONLY|O_CREAT,0640);//O_RDWR  = read and write
+    if(fd != -1){
+        syscall(546, fd, txt, tam); //faz o write_crypt
+        close(fd);
     }
-    else{
-        printf("USE O ARGUMENTO r ou w\n");
+
+    //agora eh o read
+    fd = open("out_teste.txt", O_RDONLY);
+    char * r = (char *)malloc(tam);
+    if(fd != -1){
+        syscall(547, fd, r, tam); //faz o read_crypt
+        close(fd);
     }
+    printf("String READ=%s\n",r);
+    int i;
+    for(i=0;i<tam;i++){
+        printf("string_read[%d]=0X%x\n",i,(unsigned char)r[i]);
+    }
+    free(r);
 
    return 0;
 }
